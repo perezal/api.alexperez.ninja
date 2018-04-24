@@ -5,7 +5,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-devmode = os.getenv('DJANGO_DEVELOPMENT')
+devmode = bool(os.getenv('DJANGO_DEVELOPMENT'))
 
 if devmode:
     DEBUG = True
