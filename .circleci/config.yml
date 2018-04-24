@@ -1,0 +1,12 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout # add test steps
+      - deploy:
+          name: If master, deploy to webserver
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              rsync -va --delete ./apiTools ${WEBSERVER}:${WEBADDRESS}
+            fi
