@@ -5,7 +5,7 @@ import json
 import os
 import logging
 
-class NexudusValidator():
+class NexudusAuthenticator():
     def __init__(self, request):
         self.__NEXUDUS_KEY = os.getenv('NEXUDUS_WEBHOOK_PASS')
         self.logger = logging.getLogger('uoApi.views')

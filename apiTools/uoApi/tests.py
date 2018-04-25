@@ -4,14 +4,14 @@ from django.http import HttpResponse
 
 from unittest.mock import MagicMock
 
-from .services import NexudusValidator, MailchimpRequest
+from .services import NexudusAuthenticator, MailchimpRequest
 from .views import VisitorTextNotificationView, MailchimpView
 
 import os
 
 signature = os.getenv('NEXUDUS_TEST_SIGNATURE')
 
-class NexudusValidatorTest(TestCase):
+class NexudusAuthenticatorTest(TestCase):
 
     def setUp(self):
 
@@ -27,9 +27,9 @@ class NexudusValidatorTest(TestCase):
             HTTP_X_NEXUDUS_HOOK_SIGNATURE=signature
         )
 
-        validator = NexudusValidator(post_request)
+        authenticator = NexudusAuthenticator(post_request)
 
-        self.assertEqual(validator.is_valid(), True)
+        self.assertEqual(authenticator.is_valid(), True)
 
 class VisitorTextNotificationViewTest(TestCase):
 

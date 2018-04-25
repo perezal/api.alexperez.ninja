@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import HttpResponse
 
-from .services import NexudusValidator, MailchimpRequest
+from .services import NexudusAuthenticator, MailchimpRequest
 
 import os
 import json
@@ -14,16 +14,16 @@ class VisitorTextNotificationView(View):
 
 	def post(self, request):
 
-		validator = NexudusValidator(request)
+		authenticator = NexudusAuthenticator(request)
 
-		if validator.is_valid():
+		if authenticator.is_valid():
 			request_body_str = request.body.decode('utf-8')
 			corrected_json = request_body_str.replace("'", '"') # Nexudus uses single quotes
 			request_body_loaded = json.loads(corrected_json)
 
 			# Text notification code goes here
 
-		return HttpResponse(status=validator.response_code)
+		return HttpResponse(status=authenticator.response_code)
 
 	def get(self, request):
 
@@ -37,15 +37,15 @@ class MailchimpView(View):
 
 	def post(self, request):
 
-		validator = NexudusValidator(request)
+		authenticator = NexudusAuthenticator(request)
 
-		if validator.is_valid():
+		if authenticator.is_valid():
 			request_body_str = request.body.decode('utf-8')
 			request_body_loaded = json.loads(request_body_str)
 
 			self.send_mailchimp_request(request_body_loaded)
 
-		return HttpResponse(status=validator.response_code)
+		return HttpResponse(status=authenticator.response_code)
 
 	def get(self, request):
 		html = "<html><body><h1 style='font-size:75px;'>Tests or log review could go here!</h1></body></html>"
