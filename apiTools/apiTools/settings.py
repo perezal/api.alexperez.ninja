@@ -117,7 +117,7 @@ LOGGING = {
     'handlers': {
         'writeToFile': {
             'class': 'logging.FileHandler',
-            'filename': '../logs/uoApi/views.log',
+            'filename': os.path.join(BASE_DIR, '../logs/uoApi/views.log'),
         },
     },
     'loggers': {
