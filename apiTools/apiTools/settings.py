@@ -114,10 +114,16 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'writeToFile': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+    },
     'handlers': {
         'writeToFile': {
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, '../logs/uoApi/views.log'),
+            'formatter': 'writeToFile',
         },
     },
     'loggers': {
