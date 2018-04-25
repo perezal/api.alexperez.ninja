@@ -62,7 +62,7 @@ class MailchimpRequest():
         self.api_url = os.getenv('MAILCHIMP_API_URL')
 
     def send_request(self, data):
-        mailchimp_data = self.format_mailchimp_data(self, data)
+        mailchimp_data = self.format_mailchimp_data(data)
         requests.post(self.api_url, data=mailchimp_data, auth=(self.username, self.password))
 
     # method needs refactor
