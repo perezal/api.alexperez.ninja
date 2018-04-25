@@ -41,8 +41,7 @@ class MailchimpView(View):
 
 		if validator.is_valid():
 			request_body_str = request.body.decode('utf-8')
-			corrected_json = request_body_str.replace("'", '"') # Nexudus uses single quotes
-			request_body_loaded = json.loads(corrected_json)
+			request_body_loaded = json.loads(request_body_str)
 
 			self.send_mailchimp_request(request_body_loaded)
 

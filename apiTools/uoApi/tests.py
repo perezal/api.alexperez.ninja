@@ -21,7 +21,7 @@ class NexudusValidatorTest(TestCase):
 
         post_request = self.factory.post(
             '/',
-            {"fname": "Alex"},
+            '{"test": "test json"}',
             'application/json',
             HTTP_HOST='test@api.alexperez.ninja',
             HTTP_X_NEXUDUS_HOOK_SIGNATURE=signature
@@ -41,21 +41,7 @@ class VisitorTextNotificationViewTest(TestCase):
 
         post_request = self.factory.post(
             '/',
-            {"fname": "Alex"},
-            'application/json',
-            HTTP_HOST='test@api.alexperez.ninja',
-            HTTP_X_NEXUDUS_HOOK_SIGNATURE=signature
-        )
-
-        response = VisitorTextNotificationView.as_view()(post_request)
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_nexudus_single_quote_json(self):
-
-        post_request = self.factory.post(
-            '/',
-            {'fname': 'Alex'},
+            '{"test": "test json"}',
             'application/json',
             HTTP_HOST='test@api.alexperez.ninja',
             HTTP_X_NEXUDUS_HOOK_SIGNATURE=signature
@@ -69,7 +55,7 @@ class VisitorTextNotificationViewTest(TestCase):
 
         post_request = self.factory.post(
             '/',
-            {"test":"bad_athentication_test"},
+            {"test": "bad_athentication_test"},
             'application/json',
             HTTP_HOST='test@api.alexperez.ninja',
             HTTP_X_NEXUDUS_HOOK_SIGNATURE='BADSIGNATURE1234'
@@ -83,7 +69,7 @@ class VisitorTextNotificationViewTest(TestCase):
 
         post_request = self.factory.post(
             '/',
-            {"test":"no_athentication_test"},
+            {"test": "no_athentication_test"},
             'application/json',
             HTTP_HOST='test@api.alexperez.ninja',
         )
@@ -94,87 +80,63 @@ class VisitorTextNotificationViewTest(TestCase):
 
 class MailchimpViewTest(TestCase):
     def setUp(self):
-
         MailchimpView.send_mailchimp_request = MagicMock()
+        self.mailchimp = MailchimpView()
 
         self.factory = RequestFactory()
         self.request_ok = self.factory.post(
             '/',
-            {"fname": "Alex"},
-            'application/json',
-            HTTP_HOST='test@api.alexperez.ninja',
-            HTTP_X_NEXUDUS_HOOK_SIGNATURE=signature
-        )
-        self.request_single_quote = self.factory.post(
-            '/',
-            {'fname': 'Alex'},
+            '{"test": "test json"}',
             'application/json',
             HTTP_HOST='test@api.alexperez.ninja',
             HTTP_X_NEXUDUS_HOOK_SIGNATURE=signature
         )
         self.request_bad_auth = self.factory.post(
             '/',
-            {"test":"bad_athentication_test"},
+            {"test": "bad_athentication_test"},
             'application/json',
             HTTP_HOST='test@api.alexperez.ninja',
             HTTP_X_NEXUDUS_HOOK_SIGNATURE='BADSIGNATURE1234'
         )
         self.request_no_auth = self.factory.post(
             '/',
-            {"test":"no_athentication_test"},
+            {"test": "no_athentication_test"},
             'application/json',
             HTTP_HOST='test@api.alexperez.ninja',
         )
 
     def test_post_request(self):
 
-        post_request = self.request_ok
-
-        mailchimp = MailchimpView()
-
-        response = MailchimpView.as_view()(post_request)
+        response = MailchimpView.as_view()(self.request_ok)
 
         self.assertEqual(response.status_code, 200)
-        mailchimp.send_mailchimp_request.assert_called_once()
+        self.mailchimp.send_mailchimp_request.assert_called_once()
 
     def test_mailchimp_request_is_called(self):
 
         post_request = self.request_ok
 
-        mailchimp = MailchimpView()
         response = MailchimpView.as_view()(post_request)
 
-        mailchimp.send_mailchimp_request.assert_called_once()
-
-    def test_nexudus_single_quote_json(self):
-
-        post_request = self.request_single_quote
-
-        mailchimp = MailchimpView()
-        response = MailchimpView.as_view()(post_request)
-
-        self.assertEqual(response.status_code, 200)
-        mailchimp.send_mailchimp_request.assert_called_once()
+        self.mailchimp.send_mailchimp_request.assert_called_once()
 
     def test_bad_authentication(self):
 
         post_request = self.request_bad_auth
 
-        mailchimp = MailchimpView()
         response = MailchimpView.as_view()(post_request)
 
         self.assertEqual(response.status_code, 403)
-        mailchimp.send_mailchimp_request.assert_not_called()
+        self.mailchimp.send_mailchimp_request.assert_not_called()
 
     def test_no_authentication(self):
 
         post_request = self.request_no_auth
 
-        mailchimp = MailchimpView()
         response = MailchimpView.as_view()(post_request)
 
         self.assertEqual(response.status_code, 401)
-        mailchimp.send_mailchimp_request.assert_not_called()
+        self.mailchimp.send_mailchimp_request.assert_not_called()
 
 class MailchimpRequestTest(TestCase):
     # for the Mailchimp service, not the View (see above)
