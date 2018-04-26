@@ -115,7 +115,7 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'writeToFile': {
+        'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
     },
@@ -123,11 +123,16 @@ LOGGING = {
         'writeToFile': {
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, '../logs/uoApi/views.log'),
-            'formatter': 'writeToFile',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'uoApi.views': {
+            'handlers': ['writeToFile'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'uoApi.visitorTextNotificationView': {
             'handlers': ['writeToFile'],
             'level': 'DEBUG',
             'propagate': False

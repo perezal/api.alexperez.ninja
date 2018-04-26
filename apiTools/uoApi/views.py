@@ -10,7 +10,7 @@ import logging
 
 class VisitorTextNotificationView(View):
 
-	logger = logging.getLogger('uoApi.views')
+	logger = logging.getLogger('uoApi.visitorTextNotificationView')
 
 	def post(self, request):
 
@@ -18,8 +18,9 @@ class VisitorTextNotificationView(View):
 
 		if authenticator.is_valid():
 			request_body_str = request.body.decode('utf-8')
-			corrected_json = request_body_str.replace("'", '"') # Nexudus uses single quotes
-			request_body_loaded = json.loads(corrected_json)
+			request_body_loaded = json.loads(request_body_str)
+
+			self.logger.info(request_body_str)
 
 			# Text notification code goes here
 
