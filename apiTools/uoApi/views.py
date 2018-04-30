@@ -20,8 +20,6 @@ class VisitorTextNotificationView(View):
 			request_body_str = request.body.decode('utf-8')
 			request_body_loaded = json.loads(request_body_str)
 
-			self.logger.info(request_body_str)
-
 			# Text notification code goes here
 
 		return HttpResponse(status=authenticator.response_code)
