@@ -4,7 +4,7 @@ from django.http import HttpResponse
 
 from unittest.mock import MagicMock
 
-from .services import NexudusAuthenticator, MailchimpRequest
+from .services import NexudusAuthenticator, NexudusMemberDataRequest, MailchimpRequest
 from .views import VisitorTextNotificationView, MailchimpView
 
 import os
@@ -34,22 +34,29 @@ class NexudusAuthenticatorTest(TestCase):
 class VisitorTextNotificationViewTest(TestCase):
 
     def setUp(self):
-
+        VisitorTextNotificationView.send_twilio_request = MagicMock()
+        VisitorTextNotificationView.send_member_phone_request = MagicMock(return_value="1")
         self.factory = RequestFactory()
+        self.view = VisitorTextNotificationView()
 
     def test_post_request(self):
 
+        visitor_data = os.getenv('NEXUDUS_VISITOR_NOTIFICATION_DATA')
+        visitor_signature = os.getenv('NEXUDUS_VISITOR_NOTIFICATION_SIGNATURE')
+
         post_request = self.factory.post(
             '/',
-            '{"test": "test json"}',
+            visitor_data,
             'application/json',
             HTTP_HOST='test@api.alexperez.ninja',
-            HTTP_X_NEXUDUS_HOOK_SIGNATURE=signature
+            HTTP_X_NEXUDUS_HOOK_SIGNATURE=visitor_signature
         )
 
         response = VisitorTextNotificationView.as_view()(post_request)
 
         self.assertEqual(response.status_code, 200)
+        self.view.send_member_phone_request.assert_called_with(440488283)
+        self.view.send_twilio_request.assert_called_with("Alex Perez", "Fake Visitor", "1")
 
     def test_bad_authentication(self):
 
@@ -137,6 +144,14 @@ class MailchimpViewTest(TestCase):
 
         self.assertEqual(response.status_code, 401)
         self.mailchimp.send_mailchimp_request.assert_not_called()
+
+# class NexudusMemberDataRequestTest(TestCase):
+#     def setUp(self):
+#         pass
+#
+#     def test_request(self):
+#         request = NexudusMemberDataRequest(440488283)
+#         print(request.send_request())
 
 class MailchimpRequestTest(TestCase):
     # for the Mailchimp service, not the View (see above)

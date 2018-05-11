@@ -9,6 +9,7 @@ django-cors-headers = "*"
 mysqlclient = "*"
 requests = "*"
 Django = "*"
+twilio = "*"
 
 [dev-packages]
 httpie = "*"

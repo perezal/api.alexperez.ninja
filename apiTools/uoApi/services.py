@@ -1,11 +1,13 @@
 from hashlib import sha256
 import hmac
 import requests
+from requests.auth import HTTPBasicAuth
 import json
 import os
 import logging
+from twilio.rest import Client
 
-class NexudusAuthenticator():
+class NexudusAuthenticator:
     def __init__(self, request):
         self.__NEXUDUS_KEY = os.getenv('NEXUDUS_WEBHOOK_PASS')
         self.logger = logging.getLogger('uoApi.views')
@@ -53,7 +55,46 @@ class NexudusAuthenticator():
         	self.logger.info(body_str)
         	return 403 # 403 Forbidden
 
-class MailchimpRequest():
+class NexudusMemberDataRequest:
+
+    def __init__(self, member_id):
+        self.base_url = 'https://spaces.nexudus.com/api/spaces/coworkers/'
+        self.member_id = member_id
+
+    def send_request(self):
+        url = self.base_url + str(self.member_id)
+        username = os.getenv('NEXUDUS_USERNAME')
+        password = os.getenv('NEXUDUS_PASSWORD')
+        response = requests.get(url, auth=HTTPBasicAuth(username, password))
+        return json.loads(response.text)
+
+class TwilioRequest:
+    def __init__(self, member_name, visitor_name, member_phone):
+        self.sid = os.getenv('TWILIO_SID')
+        self.key = os.getenv('TWILIO_KEY')
+        self.from_number = os.getenv('TWILIO_FROM_NUMBER')
+        self.member_name = member_name
+        self.visitor_name = visitor_name
+        self.member_phone = member_phone
+        self.message_body = self.create_message_body(
+            self.member_name,
+            self.visitor_name
+        )
+        self.client = Client(self.sid, self.key)
+
+    def send_request(self):
+        request = self.client.messages.create(
+            body=self.message_body,
+            from_=self.from_number,
+            to=self.member_phone
+        )
+        return request
+
+    def create_message_body(self, member, visitor):
+        return f'{member}, your visitor, {visitor}, has arrived! ' \
+            'Please visit the front desk to pick them up.\n-Urban Office Place'
+
+class MailchimpRequest:
 
     def __init__(self):
         # The contents of username do not matter, but must exist
