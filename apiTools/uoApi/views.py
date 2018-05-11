@@ -11,6 +11,7 @@ import logging
 class VisitorTextNotificationView(View):
 
 	logger = logging.getLogger('uoApi.visitorTextNotificationView')
+	response = HttpResponse()
 
 	def send_twilio_request(self, member_name, visitor_name, member_phone):
 		twilio_request = TwilioRequest(member_name, visitor_name, member_phone)
@@ -19,12 +20,16 @@ class VisitorTextNotificationView(View):
 	def send_member_phone_request(self, member_id):
 		data_request = NexudusMemberDataRequest(member_id)
 		response = data_request.send_request()
+		member_phone = response['MobilePhone']
+		if member_phone is None:
+			self.response = HttpResponse(status=400, reason='Member has no listed mobile number')
+			return
 		return response['MobilePhone']
 
 	def post(self, request):
 
 		authenticator = NexudusAuthenticator(request)
-
+		self.response = HttpResponse(status=authenticator.response_code)
 		if authenticator.is_valid():
 			request_body_str = request.body.decode('utf-8')
 			request_body_loaded = json.loads(request_body_str)
@@ -33,10 +38,10 @@ class VisitorTextNotificationView(View):
 				visitor_name = request['FullName']
 				member_id = request['CoworkerId']
 				member_phone = self.send_member_phone_request(member_id)
+				if self.response.status_code == 200:
+					self.send_twilio_request(member_name, visitor_name, member_phone)
 
-				self.send_twilio_request(member_name, visitor_name, member_phone)
-
-		return HttpResponse(status=authenticator.response_code)
+		return self.response
 
 	def get(self, request):
 
